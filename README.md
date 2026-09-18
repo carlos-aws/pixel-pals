@@ -97,8 +97,9 @@ Behind a simple multiplication gate (grown-ups only):
 ### GitHub Pages
 
 The repository includes a workflow that publishes the game on every push to
-`main` (the repository must be public, or on a paid GitHub plan). The first run
-enables Pages by itself. This repository's copy lives at
+`main` (the repository must be public, or on a paid GitHub plan). Enable it
+once in **Settings → Pages → Build and deployment → Source: GitHub Actions**;
+the workflow cannot switch that on by itself. This repository's copy lives at
 <https://carlos-aws.github.io/pixel-pals/>; a fork is published at
 `https://<your-user>.github.io/<repo-name>/`.
 
