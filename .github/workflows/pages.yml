@@ -1,5 +1,5 @@
 # Publishes the game to GitHub Pages on every push to main.
-# Enable it once in the repo: Settings → Pages → Source: "GitHub Actions".
+# The first run enables Pages automatically (Settings → Pages shows Source: GitHub Actions).
 name: Deploy to GitHub Pages
 on:
   push:
@@ -21,6 +21,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
