@@ -6,10 +6,13 @@ Android tablet or phone, but it runs in any modern browser.
 
 ![Home screen](docs/screenshot-home.png) ![Forest](docs/screenshot-forest.png) ![Science](docs/screenshot-science.png) ![Shop](docs/screenshot-shop.png)
 
-- 100% free and open source (MIT). No accounts, no ads, no tracking, no servers.
+- 100% free and open source (MIT). No ads, no tracking.
 - Zero dependencies and no build step: plain HTML, CSS and JavaScript.
 - Installable as a web app (PWA). Works offline once installed.
 - All art is hand-drawn pixel data in the code; sounds are synthesised on the fly.
+- Two ways to run: **local** (progress stays on the device, no accounts) or
+  **cloud** (progress saved in your own AWS account behind Google sign-in, play
+  on any device, one device at a time per player). See [docs/cloud.md](docs/cloud.md).
 
 ## How the game works
 
@@ -98,6 +101,20 @@ The repository includes a workflow that publishes the game on every push to
 GitHub Actions**. The game will be available at
 `https://<your-user>.github.io/<repo-name>/`.
 
+### Cloud mode (any device, progress saved online)
+
+Deploy the included AWS stack (S3 + CloudFront, Cognito with Google sign-in,
+Lambda + DynamoDB) with one script:
+
+```
+cp infra/.env.example infra/.env   # Google OAuth client, allowed emails
+./infra/deploy.sh
+```
+
+Full instructions, including the Google OAuth client setup and how the
+one-device-at-a-time rule works, are in [docs/cloud.md](docs/cloud.md).
+Try it without AWS with `npm run mock-cloud`.
+
 ### Run locally
 
 Any static file server works. With Node installed:
@@ -123,10 +140,11 @@ without offline caching.
 ## Development
 
 ```
-npm test         # unit tests (game rules, daily limits, content validity)
-npm run lint     # eslint
-npm run e2e      # headless browser run-through with screenshots in tools/out/
-npm run icons    # regenerate PWA icons from the sprite data
+npm test           # unit tests (game rules, daily limits, content validity, cloud lease rules)
+npm run lint       # eslint
+npm run e2e        # headless browser run-throughs (local + cloud mock) with screenshots in tools/out/
+npm run mock-cloud # local stand-in for the cloud backend on http://localhost:8090
+npm run icons      # regenerate PWA icons from the sprite data
 ```
 
 Project layout:
@@ -135,7 +153,9 @@ Project layout:
 index.html, styles.css, manifest.webmanifest, sw.js
 src/main.js            app state, screen router, autosave, timers
 src/pet.js             pet rules: needs, mood, growth stages, daily star budget
-src/storage.js         profiles and localStorage persistence, import/export
+src/storage.js         profile creation, migration, localStorage persistence, import/export
+src/store.js           local vs cloud store (same interface); cloud lease handling
+src/cloud/             config loader, Cognito sign-in (PKCE, no libraries), API client
 src/content/           question generators (math.js, english.js, science.js) + adaptive engine
 src/scene.js           canvas renderer: rooms, day/night, pet animation, particles, hatch/evolve
 src/sprites.js         all pixel art (pets, hats, icons) as character maps
@@ -143,8 +163,9 @@ src/audio.js           chiptune sound effects and music (Web Audio, no files)
 src/speech.js          text-to-speech helper
 src/screens/           profiles, home, activity, games, shop, album, parents
 src/minigames/         catch, bubbles, memory
+infra/                 AWS stack (template.yaml), Lambda code, deploy.sh
 tests/                 node:test unit tests
-tools/                 e2e and screenshot scripts (Playwright)
+tools/                 e2e and screenshot scripts (Playwright), mock cloud server
 ```
 
 ### Adding content

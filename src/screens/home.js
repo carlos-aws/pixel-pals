@@ -30,7 +30,7 @@ export function renderHome(app) {
   const coinChip = el('span', { class: 'stat-chip' });
   const stageChip = el('span', { class: 'stat-chip' });
   const nameBtn = el('button', { class: 'name', type: 'button', title: 'Switch player' }, `${pet.name}`);
-  nameBtn.addEventListener('click', () => { if (busy) return; sfx('tap'); app.saveNow(); app.go('profiles'); });
+  nameBtn.addEventListener('click', () => { if (busy) return; sfx('tap'); app.leaveProfile(); });
   const topbar = el('div', { class: 'topbar' }, nameBtn, stageChip, starChip, coinChip);
 
   // ---- scene ----

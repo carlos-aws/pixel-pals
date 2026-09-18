@@ -5,7 +5,7 @@ import { el, randInt, shuffle } from '../util.js';
 import { iconEl, petEl, SPECIES, STAGE_NAMES } from '../sprites.js';
 import { button, modal, switchEl, stepper, toast } from '../ui.js';
 import { sfx } from '../audio.js';
-import { exportJSON, importJSON } from '../storage.js';
+import { importJSON } from '../storage.js';
 import { newPet, STAGES } from '../pet.js';
 import { daysBetween } from '../util.js';
 
@@ -90,33 +90,41 @@ export function renderParents(app, params, done) {
     body.append(petPanel);
 
     // players
-    body.append(el('div', { class: 'panel px col' },
+    const cloud = app.store.mode === 'cloud';
+    const playersPanel = el('div', { class: 'panel px col' },
       el('h3', {}, 'Players'),
-      button('Switch player', { icon: 'egg', cls: '', onClick: () => { app.profile = null; app.state.lastProfileId = null; app.saveNow(); app.go('profiles'); } }),
+      cloud ? el('div', { class: 'muted' }, `Signed in as ${app.store.user()?.email || '?'}. Progress is saved online; each player can be open on one device at a time.`) : null,
+      button('Switch player', { icon: 'egg', cls: '', onClick: () => app.leaveProfile() }),
       button(`Delete ${p.name}`, { cls: 'red', onClick: async () => {
         const ok = await modal({ title: 'DELETE PLAYER?', body: `This removes ${p.name} and ${p.pet.name} forever.`, actions: [{ label: 'Delete', cls: 'red', value: true }, { label: 'Cancel', value: false }] });
         if (!ok) return;
-        app.state.profiles = app.state.profiles.filter((x) => x.id !== p.id);
-        app.profile = null; app.state.lastProfileId = null; app.saveNow(); app.go('profiles');
+        try { await app.deleteProfile(p.id); } catch { toast('Could not delete right now'); }
       } }),
-    ));
+    );
+    if (cloud) playersPanel.append(button('Sign out', { icon: 'lock', cls: 'ghost', onClick: async () => { await app.flush({ release: true }); app.store.signOut(); } }));
+    body.append(playersPanel);
 
     // backup
     const fileInput = el('input', { type: 'file', accept: 'application/json,.json', style: { display: 'none' } });
     fileInput.addEventListener('change', async () => {
       const f = fileInput.files?.[0]; if (!f) return;
       try {
-        const st = importJSON(await f.text());
-        const ok = await modal({ title: 'RESTORE BACKUP?', body: `This replaces all ${app.state.profiles.length} current player(s) with ${st.profiles.length} from the file.`, actions: [{ label: 'Restore', cls: 'red', value: true }, { label: 'Cancel', value: false }] });
+        const text = await f.text();
+        const st = importJSON(text);
+        const body = app.store.mode === 'cloud'
+          ? `This adds ${st.profiles.length} player(s) from the file to the cloud, overwriting any with the same id.`
+          : `This replaces all ${app.state.profiles.length} current player(s) with ${st.profiles.length} from the file.`;
+        const ok = await modal({ title: 'RESTORE BACKUP?', body, actions: [{ label: 'Restore', cls: 'red', value: true }, { label: 'Cancel', value: false }] });
         if (!ok) return;
-        app.state = st; app.profile = null; app.saveNow(); app.go('profiles');
+        await app.store.importState(text);
+        app.profile = null; app.store.setLast(null); app.go('profiles');
       } catch { toast('Could not read that file'); }
     });
     body.append(el('div', { class: 'panel px col' },
       el('h3', {}, 'Backup'),
-      el('div', { class: 'muted' }, 'Progress is saved on this device only. Export a file to move it to another device.'),
+      el('div', { class: 'muted' }, app.store.mode === 'cloud' ? 'Export this player as a file, or restore players from a file (for example, progress made in the local version).' : 'Progress is saved on this device only. Export a file to move it to another device or to the cloud version.'),
       button('Export save file', { icon: 'book', onClick: () => {
-        const blob = new Blob([exportJSON(app.state)], { type: 'application/json' });
+        const blob = new Blob([app.store.exportState(p)], { type: 'application/json' });
         const a = el('a', { href: URL.createObjectURL(blob), download: `pixel-pals-${new Date().toISOString().slice(0, 10)}.json` });
         document.body.append(a); a.click(); a.remove();
       } }),
