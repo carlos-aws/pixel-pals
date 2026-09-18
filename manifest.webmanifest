@@ -1,0 +1,17 @@
+{
+  "name": "Pixel Pals",
+  "short_name": "Pixel Pals",
+  "description": "A retro pixel pet that grows as you practise English, maths and science.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#1b1a33",
+  "theme_color": "#2b2340",
+  "categories": ["education", "games", "kids"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

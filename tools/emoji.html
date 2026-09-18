@@ -1,0 +1,10 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body style="background:#fff;font-size:40px">
+<div id="dom">DOM: 🐱 🐶 ☀️ 🍎</div>
+<canvas id="c1" width="300" height="80"></canvas>
+<canvas id="c2" width="300" height="80"></canvas>
+<script>
+const c1 = document.getElementById('c1').getContext('2d');
+c1.font = '40px "Noto Color Emoji"'; c1.fillText('🐱 🐶 ☀️ 🍎', 10, 55);
+const c2 = document.getElementById('c2').getContext('2d');
+c2.font = '40px sans-serif'; c2.fillText('🐱 🐶 ☀️ 🍎', 10, 55);
+</script></body></html>

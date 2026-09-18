@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body>
+<script type="module">
+import { petRows, petPalette, spriteCanvas, HATS } from '../src/sprites.js';
+function make(size, maskable) {
+  const cv = document.createElement('canvas'); cv.width = size; cv.height = size;
+  const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = '#2b2340'; ctx.fillRect(0, 0, size, size);
+  // pixel border frame
+  const unit = size / 32;
+  ctx.fillStyle = '#4fa3ff'; ctx.fillRect(unit * 2, unit * 2, size - unit * 4, size - unit * 4);
+  ctx.fillStyle = '#7ec8ff'; ctx.fillRect(unit * 3, unit * 3, size - unit * 6, size - unit * 6);
+  ctx.fillStyle = '#5cbd5a'; ctx.fillRect(unit * 3, size - unit * 9, size - unit * 6, unit * 6);
+  const rows = petRows('mochi', 2); const pal = petPalette('mochi', 2);
+  const sp = spriteCanvas(rows, pal);
+  const s = Math.floor((size * (maskable ? 0.5 : 0.62)) / sp.width);
+  const w = sp.width * s, h = sp.height * s;
+  ctx.drawImage(sp, Math.round((size - w) / 2), Math.round(size - unit * 9 - h + s), w, h);
+  const hat = HATS.crown; const hc = spriteCanvas(hat.rows, hat.pal);
+  ctx.drawImage(hc, Math.round((size - hc.width * s) / 2), Math.round(size - unit * 9 - h + s + hat.dy * s), hc.width * s, hc.height * s);
+  return cv.toDataURL('image/png');
+}
+window.__icons = { i192: make(192, false), i512: make(512, false), m512: make(512, true) };
+</script></body></html>

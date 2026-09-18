@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"></head><body style="background:#3b4a6b;margin:0;padding:10px;font-family:sans-serif;color:#fff">
+<div id="out" style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end"></div>
+<script type="module">
+import { SPECIES, petEl, iconEl, ICONS, HATS, pixelEmoji } from '../src/sprites.js';
+const out = document.getElementById('out');
+for (const sp of Object.keys(SPECIES)) for (let st = 0; st <= 5; st++) {
+  const w = document.createElement('div'); w.style.textAlign='center';
+  w.append(petEl(sp, st, 3, st===4?'crown':(st===3?'party':null)));
+  w.append(document.createElement('br')); w.append(sp+' '+st);
+  out.append(w);
+}
+const row = document.createElement('div'); row.style.width='100%';row.style.display='flex';row.style.flexWrap='wrap';row.style.gap='10px';
+for (const k of Object.keys(ICONS)) { const d=document.createElement('div'); d.style.textAlign='center'; d.append(iconEl(k, 6)); d.append(document.createElement('br')); d.append(k); row.append(d); }
+out.append(row);
+const row2 = document.createElement('div'); row2.style.width='100%';row2.style.display='flex';row2.style.flexWrap='wrap';row2.style.gap='10px';
+for (const k of Object.keys(HATS)) { const d=document.createElement('div'); d.style.textAlign='center'; d.append(petEl('mochi',2,3,k)); d.append(document.createElement('br')); d.append(k); row2.append(d); }
+for (const e of ['🐱','🐶','☀️','🍎','🚌','🐟']) { row2.append(pixelEmoji(e, 14, 5)); }
+out.append(row2);
+window.__done = true;
+</script></body></html>
